@@ -1,0 +1,176 @@
+# Setting host
+- hosts: localhost
+  gather_facts: false
+
+#Variables
+  vars:
+    bitnami_chart_url: "https://charts.bitnami.com/bitnami"
+    prometheus_chart_url: "https://prometheus-community.github.io/helm-charts" 
+    elastic_chart_url: "https://Helm.elastic.co"
+    ansible_python_interpreter: '{{ ansible_playbook_python }}'
+    elk_stack_version: 7.13.0
+
+# Pre-Tasks to validate if Minikube is running and adding repos
+  pre_tasks:
+    - name: Check Minikube's status.
+      command: minikube status
+      register: minikube_status
+      changed_when: false
+      ignore_errors: true
+    # Otherwise will start minikube
+    - name: Start Minikube if it's not running.
+      command: minikube start --cpus=2 --memory=5g 
+      when: "not minikube_status.stdout or 'Running' not in minikube_status.stdout"
+    - name: Add bitnami repo
+      kubernetes.core.helm_repository:
+        name: bitnami
+        repo_url: "{{ bitnami_chart_url }}"
+    - name: Add Prometheus repo
+      kubernetes.core.helm_repository:
+        name: prometheus-community
+        repo_url: "{{ prometheus_chart_url }}"
+    - name: Add elastic repo
+      kubernetes.core.helm_repository:
+        name: elastic
+        repo_url: "{{ elastic_chart_url }}"
+
+# Installing Helm Charts
+  tasks:
+    - name: Install Helm Diff
+      kubernetes.core.helm_plugin:
+        state: present
+        plugin_path: https://github.com/databus23/helm-diff
+    - name: Install K8s Prometheus chart
+      kubernetes.core.helm:
+        name: kube-prometheus
+        release_namespace: monitoring 
+        create_namespace: true
+        chart_ref: prometheus-community/kube-prometheus-stack 
+        wait: true
+        values_files:
+          - kube-prometheus_values.yaml
+    - name: Install Wordpress chart
+      kubernetes.core.helm:
+        state: present
+        name: wordpress
+        release_namespace: wordpress
+        create_namespace: true
+        chart_ref: bitnami/wordpress
+        values_files:
+          - wordpress_vaules.yaml 
+    - name: Install Prometheus MYsql exporter chart
+      kubernetes.core.helm:
+        state: present
+        name: prometheus-mysql-exporter
+        release_namespace: monitoring
+        create_namespace: true
+        chart_ref: prometheus-community/prometheus-mysql-exporter 
+        values_files:
+          - prometheus-mysql-exporter_vaules.yaml 
+    - name: Install ElasticSearch 
+      kubernetes.core.helm:
+        name: elasticsearch 
+        chart_version: "{{ elk_stack_version }}"
+        release_namespace: elk
+        create_namespace: true
+        chart_ref: elastic/elasticsearch 
+        wait: true
+        wait_timeout: 600
+        values_files:
+          - elasticsearch_values.yaml
+    - name: Install Logstash 
+      kubernetes.core.helm:
+        name: logstash
+        chart_version: "{{ elk_stack_version }}"
+        release_namespace: elk
+        chart_ref: elastic/logstash 
+        wait: true
+        values_files:
+          - logstash_values.yaml
+    - name: Install Kibana 
+      kubernetes.core.helm:
+        name: kibana 
+        chart_version: "{{ elk_stack_version }}"
+        release_namespace: elk
+        chart_ref: elastic/kibana
+        wait: true
+        values_files:
+          - kibana_values.yaml
+
+    - name: Create a Service for Grafana
+      k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: kube-prometheus-grafana
+            namespace: monitoring 
+          spec:
+            type: LoadBalancer
+            ports:
+            - port: 80 
+              targetPort: 3000 
+    - name: Create a Service for ElasticSearch 
+      k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: elasticsearch-master
+            namespace: elk
+          spec:
+            type: LoadBalancer
+            ports:
+            - port: 9200
+              targetPort: 9200 
+    - name: Create a Service for Kibana 
+      k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: kibana-kibana
+            namespace: elk
+          spec:
+            type: LoadBalancer
+            ports:
+            - port: 5601 
+              targetPort: 5601 
+
+#Example export using minikube services
+    - name: Expose Grafana on the host via Minikube.
+      command:  minikube service kube-prometheus-grafana -n monitoring --url=true 
+      changed_when: false
+      register: minikube_service
+    - debug:
+        msg: "Grafana URL: {{ minikube_service['stdout_lines'][0] }}"
+
+    - name: Get Wordpress URL.
+      command:  minikube service wordpress -n wordpress --url=true 
+      changed_when: false
+      register: minikube_service
+    - debug:
+        msg: "Wordpress URL: {{ minikube_service['stdout_lines'] }}"
+
+    - name: Get ElasticSearch URL.
+      command:  minikube service elasticsearch-master -n elk --url=true 
+      changed_when: false
+      register: minikube_service
+    - debug:
+        msg: "ElasticSearch URL: {{ minikube_service['stdout_lines'][0] }}"
+
+    - name: Get Kibana URL.
+      command:  minikube service kibana-kibana -n elk --url=true 
+      changed_when: false
+      register: minikube_service
+    - debug:
+        msg: "Kibana URL: {{ minikube_service['stdout_lines'][0] }}"
+
+#    - name: Start Minikube tunnel. 
+#      command: minikube tunnel
+#      become: true
+#      async: 2592000
+#      poll: 0
