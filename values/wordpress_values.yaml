@@ -85,7 +85,7 @@ image:
   pullSecrets: []
   ## Enable debug mode
   ##
-  debug: false
+  debug: true
 
 ## @section WordPress Configuration parameters
 ## WordPress settings based on environment variables
@@ -128,7 +128,7 @@ wordpressScheme: http
 wordpressSkipInstall: false
 ## @param wordpressExtraConfigContent Add extra content to the default wp-config.php file
 ## e.g:
-## wordpressExtraConfigContent: |
+wordpressExtraConfigContent: |
 ##   @ini_set( 'post_max_size', '128M');
 ##   @ini_set( 'memory_limit', '256M' );
 ##
@@ -220,7 +220,9 @@ command: []
 args: []
 ## @param extraEnvVars Array with extra environment variables to add to the WordPress container
 ## e.g:
-## extraEnvVars:
+extraEnvVars:
+  - name: LOG_LEVEL
+    value: debug
 ##   - name: FOO
 ##     value: "bar"
 ##
@@ -473,7 +475,7 @@ service:
   type: LoadBalancer
   ## @param service.port WordPress service HTTP port
   ##
-  port: 80
+  port: 8888
   ## @param service.httpsPort WordPress service HTTPS port
   ##
   httpsPort: 443
@@ -779,7 +781,8 @@ metrics:
     honorLabels: false
     ## @param metrics.serviceMonitor.additionalLabels Additional custom labels for the ServiceMonitor
     ##
-    additionalLabels: {}
+    additionalLabels:
+      release: kube-prometheus
 
 ## @section Database Parameters
 
@@ -803,10 +806,10 @@ mariadb:
   ##      https://github.com/bitnami/bitnami-docker-mariadb/blob/master/README.md#creating-a-database-on-first-run
   ##      https://github.com/bitnami/bitnami-docker-mariadb/blob/master/README.md#creating-a-database-user-on-first-run
   auth:
-    rootPassword: ""
+    rootPassword: "root"
     database: bitnami_wordpress
     username: bn_wordpress
-    password: ""
+    password: "password"
   ## MariaDB Primary configuration
   ##
   primary:
@@ -818,7 +821,7 @@ mariadb:
     ## @param mariadb.primary.persistence.size Persistent Volume size
     ##
     persistence:
-      enabled: true
+      enabled: false
       storageClass: ""
       accessModes:
         - ReadWriteOnce
@@ -838,7 +841,7 @@ externalDatabase:
   user: bn_wordpress
   ## @param externalDatabase.password External Database user password
   ##
-  password: "pass"
+  password: "password"
   ## @param externalDatabase.database External Database database name
   ##
   database: bitnami_wordpress

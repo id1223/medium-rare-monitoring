@@ -1,0 +1,21 @@
+# Setting host
+- hosts: localhost
+  gather_facts: false
+
+#Variables
+  vars:
+    ansible_python_interpreter: '{{ ansible_playbook_python }}'
+    deployment_name: prometheus-mysql-exporter
+    custom_namespace: monitoring
+
+#Install Mysql Exporter
+  tasks:
+    - name: Install Prometheus MYsql exporter chart
+      kubernetes.core.helm:
+        state: present
+        name: '{{ deployment_name }}'
+        release_namespace: '{{ custom_namespace }}'
+        create_namespace: true
+        chart_ref: prometheus-community/prometheus-mysql-exporter
+        values_files:
+          - ../values/prometheus-mysql-exporter_values.yaml

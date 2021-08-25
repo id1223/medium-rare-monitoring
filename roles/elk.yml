@@ -1,0 +1,61 @@
+# Setting host
+- hosts: localhost
+  gather_facts: false
+
+#Variables
+  vars:
+    ansible_python_interpreter: '{{ ansible_playbook_python }}'
+    elk_stack_version: 7.13.0
+    custom_namespace: monitoring
+    wait_boolean: true
+    wait_timeout: 600s
+
+  #Instal ELK stack
+  tasks:
+    - name: Install ElasticSearch
+      kubernetes.core.helm:
+        name: elasticsearch
+        chart_version: "{{ elk_stack_version }}"
+        release_namespace: '{{ custom_namespace }}'
+        create_namespace: true
+        chart_ref: elastic/elasticsearch
+        wait: '{{ wait_boolean }}'
+        wait_timeout: '{{ wait_timeout }}'
+        values_files:
+          - ../values/elasticsearch_values.yaml
+    - name: Install Logstash
+      kubernetes.core.helm:
+        name: logstash
+        chart_version: "{{ elk_stack_version }}"
+        release_namespace: '{{ custom_namespace }}'
+        chart_ref: elastic/logstash
+        wait: '{{ wait_boolean }}'
+        wait_timeout: '{{ wait_timeout }}'
+        values_files:
+          - ../values/logstash_values.yaml
+    - name: Install Kibana
+      kubernetes.core.helm:
+        name: kibana
+        chart_version: "{{ elk_stack_version }}"
+        release_namespace: '{{ custom_namespace }}'
+        chart_ref: elastic/kibana
+        wait: '{{ wait_boolean }}'
+        wait_timeout: '{{ wait_timeout }}'
+        values_files:
+          - ../values/kibana_values.yaml
+
+#Create LB for Kibana
+    - name: Create a Service for Kibana
+      k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: kibana-kibana
+            namespace: '{{ custom_namespace }}'
+          spec:
+            type: LoadBalancer
+            ports:
+              - port: 5601
+                targetPort: 5601

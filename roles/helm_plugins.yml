@@ -1,0 +1,15 @@
+# Setting host
+- hosts: localhost
+  gather_facts: false
+
+#Variables
+  vars:
+    ansible_python_interpreter: '{{ ansible_playbook_python }}'
+    helm_plugin_url: https://github.com/databus23/helm-diff
+
+# Tasks to validate if Minikube is running
+  tasks:
+    - name: Install Helm Diff
+      kubernetes.core.helm_plugin:
+        state: present
+        plugin_path: '{{ helm_plugin_url }}'

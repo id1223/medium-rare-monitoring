@@ -1,0 +1,20 @@
+# Setting host
+- hosts: localhost
+  gather_facts: false
+
+#Variables
+  vars:
+    ansible_python_interpreter: '{{ ansible_playbook_python }}'
+    deployment_name: filebeat
+    custom_namespace: monitoring
+#Install wordpress
+  tasks:
+    - name: Install Filebeat chart
+      kubernetes.core.helm:
+        state: present
+        name: '{{ deployment_name }}'
+        release_namespace: '{{ custom_namespace }}'
+        create_namespace: true
+        chart_ref: elastic/filebeat
+        values_files:
+          - ../values/filebeat_values.yaml

@@ -1,0 +1,20 @@
+# Setting host
+- hosts: localhost
+  gather_facts: false
+
+#Variables
+  vars:
+    ansible_python_interpreter: '{{ ansible_playbook_python }}'
+    deployment_name: wordpress
+    custom_namespace: wordpress
+#Install wordpress
+  tasks:
+    - name: Install Wordpress chart
+      kubernetes.core.helm:
+        state: present
+        name: '{{ deployment_name }}'
+        release_namespace: '{{ custom_namespace }}'
+        create_namespace: true
+        chart_ref: bitnami/wordpress
+        values_files:
+          - ../values/wordpress_values.yaml

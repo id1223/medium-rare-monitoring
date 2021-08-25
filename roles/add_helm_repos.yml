@@ -1,0 +1,24 @@
+# Setting host
+- hosts: localhost
+  gather_facts: false
+
+#Variables
+  vars:
+    ansible_python_interpreter: '{{ ansible_playbook_python }}'
+    bitnami_chart_url: "https://charts.bitnami.com/bitnami"
+    prometheus_chart_url: "https://prometheus-community.github.io/helm-charts"
+    elastic_chart_url: "https://Helm.elastic.co"
+
+  tasks:
+    - name: Add bitnami repo
+      kubernetes.core.helm_repository:
+        name: bitnami
+        repo_url: "{{ bitnami_chart_url }}"
+    - name: Add Prometheus repo
+      kubernetes.core.helm_repository:
+        name: prometheus-community
+        repo_url: "{{ prometheus_chart_url }}"
+    - name: Add elastic repo
+      kubernetes.core.helm_repository:
+        name: elastic
+        repo_url: "{{ elastic_chart_url }}"

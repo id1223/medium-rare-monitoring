@@ -1,8 +1,9 @@
 #!/bin/bash
 ### VARS
-ANSIBLE_PLAYBOOK="/usr/bin/ansible-playbook"
+#ANSIBLE_PLAYBOOK="/usr/bin/ansible-playbook"
+ANSIBLE_PLAYBOOK="/usr/local/bin/ansible-playbook"
 PIP="/usr/local/bin/pip"
-
+#HELM!!
 ### FUNCTIONS BEGIN
 help(){
  echo "Wordpress monitoring."

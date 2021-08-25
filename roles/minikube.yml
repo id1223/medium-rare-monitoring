@@ -1,0 +1,21 @@
+# Setting host
+- hosts: localhost
+  gather_facts: false
+
+#Variables
+  vars:
+    ansible_python_interpreter: '{{ ansible_playbook_python }}'
+    cluster_parameters: minikube start --cpus=2 --memory=5g
+
+# Tasks to validate if Minikube is running
+  tasks:
+    - name: Check Minikube's status.
+      command: minikube status
+      register: minikube_status
+      changed_when: false
+      ignore_errors: true
+
+# Otherwise will start minikube
+    - name: Start Minikube if it's not running.
+      command: '{{ cluster_parameters }}'
+      when: "not minikube_status.stdout or 'Running' not in minikube_status.stdout"
