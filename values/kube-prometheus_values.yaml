@@ -1377,11 +1377,11 @@ prometheusOperator:
         pullPolicy: IfNotPresent
       resources: 
         requests:
-          cpu: 100m
-          memory: 128Mi
+          cpu: 500m
+          memory: 512Mi
         limits:
-          cpu: 200m
-          memory: 256Mi
+          cpu: 1000m
+          memory: 512Mi
       ## Provide a priority class name to the webhook patching job
       ##
       priorityClassName: ""
@@ -2245,11 +2245,11 @@ prometheus:
     ##
     resources:
       requests:
-        cpu: 100m
-        memory: 128Mi
+        cpu: 500m
+        memory: 512Mi
       limits:
-        cpu: 200m
-        memory: 256Mi
+        cpu: 1000m
+        memory: 512Mi
 
     ## Prometheus StorageSpec for persistent data
     ## ref: https://github.com/prometheus-operator/prometheus-operator/blob/master/Documentation/user-guides/storage.md

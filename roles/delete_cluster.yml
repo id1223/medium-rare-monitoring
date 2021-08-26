@@ -1,0 +1,48 @@
+# Setting host
+- hosts: localhost
+  gather_facts: false
+
+#Remove all helm installs
+  tasks:
+    - name: Remove kube-prometheus-stack
+      community.kubernetes.helm:
+        name: kube-prometheus
+        release_namespace: monitoring
+        state: absent
+        wait: true
+    - name: Remove Wordpress stack
+      community.kubernetes.helm:
+        name: wordpress
+        release_namespace: wordpress
+        state: absent
+        wait: true
+    - name: Remove Mysql exporter
+      community.kubernetes.helm:
+        name: prometheus-mysql-exporter
+        release_namespace: monitoring
+        state: absent
+        wait: true
+    - name: Remove Elastic Search
+      community.kubernetes.helm:
+        name: elasticsearch
+        release_namespace: monitoring
+        state: absent
+        wait: true
+    - name: Remove Logstash
+      community.kubernetes.helm:
+        name: logstash
+        release_namespace: monitoring
+        state: absent
+        wait: true
+    - name: Remove Kibana
+      community.kubernetes.helm:
+        name: kibana
+        release_namespace: monitoring
+        state: absent
+        wait: true
+    - name: Remove FileBeat
+      community.kubernetes.helm:
+        name: filebeat
+        release_namespace: monitoring
+        state: absent
+        wait: true

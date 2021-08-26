@@ -1,0 +1,17 @@
+#Setting host
+- hosts: localhost
+  gather_facts: false
+
+  tasks:
+    - name: Configmap/fix Grafana datasource
+      community.kubernetes.k8s:
+        state: present
+        src: ../deployments/kube-prometheus-kube-prome-grafana-datasource.yaml
+    - name: Configmap with Apache Grafana dashboard
+      community.kubernetes.k8s:
+        state: present
+        src: ../deployments/wordpress_apache_dashboard_configmap.yml
+    - name: Configmap with Mysql/Mariadb Grafana dashboard
+      community.kubernetes.k8s:
+        state: present
+        src: ../deployments/wordpress_mariadb_dashboard_configmap.yml
