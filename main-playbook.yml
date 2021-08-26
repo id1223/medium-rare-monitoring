@@ -17,8 +17,4 @@
 - import_playbook: roles/elk.yml
 - import_playbook: roles/filebeat.yml
 - import_playbook: roles/grafana_fixes.yml
-#    - name: Start Minikube tunnel. 
-#      command: minikube tunnel
-#      become: true
-#      async: 2592000
-#      poll: 0
+
