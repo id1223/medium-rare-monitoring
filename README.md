@@ -56,28 +56,28 @@ Note that default Grafana login and password is:
 
 Have fun!
 
-##Configuration
-###Values
+## Configuration
+### Values
 In `Values` directory you can find separate `<deployment>_values.yaml` file for each deployment. It's standard values
 file specific for Helm deployments. For further information/customization please visit [Deployed apps](#Deployed apps)
 there are information about every stack.
 
-###Grafana dashboards
+### Grafana dashboards
 All dashboards related to cluster and node monitoring are vanilla dashboards provided by `kube-prometheus-stack`. I made
 custom configuration only for Apache and MySql monitoring - it was achieved by creating `configMaps` in `deployments` 
 directory.
 
-###ELK&FileBeat configuration
+### ELK&FileBeat configuration
 FileBeat is configured as DaemonSet and runs in every POD. Main task for this deployment is to forward logs to Elastic. 
 My custom configuration is to scrape also access and error logs from Apache in Wordpress stack. For now logs are uploaded
 directly to Elastic, but there is also posibility to upload them to Logstash and make more customization there. Elastic
 is only exposing logs to Kibana where you can do your own queries and search for error entries and other interesting facts.
 My plan is to add there some datasets.
 
-###Metrics and alerting
+### Metrics and alerting
 This configuration is collecting all of valuable metrics and expose them to Grafana and Elastic. In Grafana for every 
 metric you can find a dashboard which visualize them. For now there are implemented only Prometheus vanilla rules from 
 kube-prometheus-stack but in future I want to apply also metrics for MySQL and Apache.
 
-###Tests
+### Tests
 It was tested on Ubuntu Xenial 16.04 and on MacOS BigSur 11.5.1 with Docker desktop installed.
