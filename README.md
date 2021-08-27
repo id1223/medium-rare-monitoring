@@ -74,10 +74,16 @@ directly to Elastic, but there is also posibility to upload them to Logstash and
 is only exposing logs to Kibana where you can do your own queries and search for error entries and other interesting facts.
 My plan is to add there some datasets.
 
-### Metrics and alerting
+### Metrics and visualizations
 This configuration is collecting all of valuable metrics and expose them to Grafana and Elastic. In Grafana for every 
-metric you can find a dashboard which visualize them. For now there are implemented only Prometheus vanilla rules from 
-kube-prometheus-stack but in future I want to apply also metrics for MySQL and Apache.
+metric you can find a dashboard which visualize them. 
+
+###Prometheus rules and alerting
+I've implemented two [CRDs](https://github.com/prometheus-operator/prometheus-operator#customresourcedefinitions) 
+for alerting. These CRDs are in `deployments` directory with `*.rules` extension. I used `PrometheusRule` CRD for Apache
+Prometheus rules and for MySQL Prometheus rules. Based on thresholds desribed in these CRDs Prometheus is generating alerts
+which are exported to AlertManager. In enterprise solution you may connect AlertManager to external PagerDuty solution i.ex.
+
 
 ### Tests
 It was tested on Ubuntu Xenial 16.04 and on MacOS BigSur 11.5.1 with Docker desktop installed.

@@ -18,3 +18,11 @@
         wait: true
         values_files:
           - ../values/kube-prometheus_values.yaml
+    - name: PrometheusRules CRD with Apache rules
+      community.kubernetes.k8s:
+        state: present
+        src: ../deployments/kube-prometheus-kube-prome-apache.rules
+    - name: PrometheusRules CRD with MySQL/MariaDB rules
+      community.kubernetes.k8s:
+        state: present
+        src: ../deployments/kube-prometheus-kube-prome-mysql.rules

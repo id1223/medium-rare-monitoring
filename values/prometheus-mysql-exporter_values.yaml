@@ -27,9 +27,12 @@ serviceMonitor:
   # additionalLabels is the set of additional labels to add to the ServiceMonitor
   additionalLabels:
     release: kube-prometheus
+    cluster: wordpress
   jobLabel: ""
-  targetLabels: []
-  podTargetLabels: []
+  targetLabels:
+    - cluster
+  podTargetLabels:
+    - cluster
   metricRelabelings: []
 
 serviceAccount:
@@ -57,7 +60,9 @@ tolerations: []
 
 affinity: {}
 
-podLabels: {}
+podLabels:
+  cluster: wordpress
+
 
 podSecurityContext: {}
   # fsGroup: 65534
